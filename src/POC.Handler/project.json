@@ -1,0 +1,25 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Handler Console Application",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "POC.Integration": "",
+    "POC.Messages": ""
+  },
+
+  "commands": {
+    "POC.Handler": "POC.Handler"
+  },
+
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Messaging": ""
+      }
+    }
+  }
+}
