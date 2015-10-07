@@ -25,7 +25,7 @@ namespace ZMQ.Sockets
                     Logger.LogDebug($"[{options.Id}] Received - {message}");                
 
                     // reply with a response
-                    socket.SendFrame($"Thanks from {options.Id}");
+                    socket.SendFrame($"Thanks for {message} from {options.Id}");
                 }
             }            
         }
