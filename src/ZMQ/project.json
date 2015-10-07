@@ -1,6 +1,6 @@
 ﻿{
   "version": "1.0.0-*",
-  "description": "ZMQPlayground Console Application",
+  "description": "ZMQ Console Application",
   "authors": [ "kmn" ],
   "tags": [ "" ],
   "projectUrl": "",
@@ -16,13 +16,13 @@
   },
   
   "commands": {
-    "ZMQPlayground": "ZMQPlayground",
-    "push": "ZMQPlayground --socketType ZMQ.Sockets.Push",
-    "pull": "ZMQPlayground --socketType ZMQ.Sockets.Pull",
-    "request": "ZMQPlayground --socketType ZMQ.Sockets.Request",
-    "response": "ZMQPlayground --socketType ZMQ.Sockets.Response",
-    "publisher": "ZMQPlayground --socketType ZMQ.Sockets.Publisher",
-    "subscriber": "ZMQPlayground --socketType ZMQ.Sockets.Subscriber"
+    "ZMQ": "ZMQ",
+    "push": "ZMQ --socketType ZMQ.Sockets.Push",
+    "pull": "ZMQ --socketType ZMQ.Sockets.Pull",
+    "request": "ZMQ --socketType ZMQ.Sockets.Request",
+    "response": "ZMQ --socketType ZMQ.Sockets.Response",
+    "publisher": "ZMQ --socketType ZMQ.Sockets.Publisher",
+    "subscriber": "ZMQ --socketType ZMQ.Sockets.Subscriber"
   },
 
   "frameworks": {
