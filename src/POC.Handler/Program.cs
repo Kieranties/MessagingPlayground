@@ -25,20 +25,24 @@ namespace POC.Handler
 
         public void Main(string[] args)
         {
-            using(var queue = new MessageQueue(".\\private$\\poc.messagequeue.unsubscribe"))
+            using(var queue = new MessageQueue(".\\private$\\poc.messagequeue.unsubscribe-tx"))
             {
                 while (true)
                 {
                     _logger.LogInformation("Listening");
-
-                    var message = queue.Receive();
-                    var bodyReader = new StreamReader(message.BodyStream);
-                    var jsonBody = bodyReader.ReadToEnd();
-                    var unsubscribeMessage = JsonConvert.DeserializeObject<UnsubscribeCommand>(jsonBody);
-                    var workflow = new UnsubscribeWorkflow(unsubscribeMessage.EmailAddress);
-                    _logger.LogDebug($"Starting unsubscribe for {unsubscribeMessage.EmailAddress} ");
-                    workflow.Run();
-                    _logger.LogDebug($"Unsubscribe complete for {unsubscribeMessage.EmailAddress} ");
+                    using(var transaction = new MessageQueueTransaction())
+                    {
+                        transaction.Begin(); // locks the mssage in the queue
+                        var message = queue.Receive();
+                        var bodyReader = new StreamReader(message.BodyStream);
+                        var jsonBody = bodyReader.ReadToEnd();
+                        var unsubscribeMessage = JsonConvert.DeserializeObject<UnsubscribeCommand>(jsonBody);
+                        var workflow = new UnsubscribeWorkflow(unsubscribeMessage.EmailAddress);
+                        _logger.LogDebug($"Starting unsubscribe for {unsubscribeMessage.EmailAddress} ");
+                        workflow.Run();
+                        _logger.LogDebug($"Unsubscribe complete for {unsubscribeMessage.EmailAddress} ");
+                        transaction.Commit(); // removes the mssage from the queue as is completed
+                    }                    
                 }
             }
         }

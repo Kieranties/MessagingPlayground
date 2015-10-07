@@ -29,7 +29,7 @@ namespace POC.Controllers
                 EmailAddress = emailAddress
             };
 
-            using(var queue = new MessageQueue(".\\private$\\poc.messagequeue.unsubscribe"))
+            using(var queue = new MessageQueue(".\\private$\\poc.messagequeue.unsubscribe-tx"))
             {
                 // serialize using default xml serialization
                 // var message = new Message(unsubscribeCommand); //
@@ -38,9 +38,15 @@ namespace POC.Controllers
                 var message = new Message();
                 var json = JsonConvert.SerializeObject(unsubscribeCommand);
                 message.BodyStream = new MemoryStream(Encoding.Default.GetBytes(json));
-                queue.Send(message);
 
-                // json raw bytes cleraly reduces size of message
+                // json raw bytes clearly reduces size of message
+
+                // transaction for durability
+                var transaction = new MessageQueueTransaction();
+                transaction.Begin();
+                queue.Send(message, transaction);
+                transaction.Commit();
+                
             }
 
             return View("Confirmation");
