@@ -1,3 +1,4 @@
 bin/
 project.lock.json
 *.xproj.user
+.suo
