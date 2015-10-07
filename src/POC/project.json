@@ -7,9 +7,9 @@
 
     "Microsoft.AspNet.Mvc": "6.0.0-beta7",
     "Microsoft.AspNet.Diagnostics": "1.0.0-beta7",
-
     "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta7",
     "Microsoft.AspNet.StaticFiles": "1.0.0-*",
+    "Newtonsoft.Json": "7.0.1",
 
     "POC.Messages": "",
     "POC.Integration": ""

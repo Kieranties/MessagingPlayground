@@ -8,7 +8,11 @@
 
   "dependencies": {
     "POC.Integration": "",
-    "POC.Messages": ""
+    "POC.Messages": "",
+    "Microsoft.Framework.DependencyInjection": "1.0.0-beta7",
+    "Microsoft.Framework.Logging": "1.0.0-beta7",
+    "Microsoft.Framework.Logging.Console": "1.0.0-beta7",
+    "Newtonsoft.Json": "7.0.1"
   },
 
   "commands": {
