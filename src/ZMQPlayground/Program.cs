@@ -25,24 +25,9 @@ namespace ZMQ
 
             config.Bind(options);
                         
-            AbstractSocket socket;
-            switch (options.SocketType)
-            {
-                case nameof(Push):
-                    socket = _services.GetRequiredService<Push>();
-                    break;
-                case nameof(Pull):
-                    socket = _services.GetRequiredService<Pull>();
-                    break;
-                case nameof(Request):
-                    socket = _services.GetRequiredService<Request>();
-                    break;
-                case nameof(Response):
-                    socket = _services.GetRequiredService<Response>();
-                    break;
-                default:
-                    throw new Exception("Unkown socket type");
-            }
+            var type = Type.GetType(options.SocketType);
+
+            var socket = _services.GetService(type) as AbstractSocket;
             
             socket.Start(options);            
 
@@ -58,6 +43,8 @@ namespace ZMQ
             services.AddTransient<Pull>();
             services.AddTransient<Request>();
             services.AddTransient<Response>();
+            services.AddTransient<Publisher>();
+            services.AddTransient<Subscriber>();
 
             return services.BuildServiceProvider();
         }

@@ -6,7 +6,7 @@ namespace ZMQ.Sockets
 {
     public class Request : AbstractSocket
     {
-        public Request(ILogger<Push> logger) : base(logger)
+        public Request(ILogger<Request> logger) : base(logger)
         {
 
         }

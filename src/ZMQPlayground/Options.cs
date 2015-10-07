@@ -13,5 +13,8 @@
         public string SocketType { get; set; }
 
         public string Id { get; set; } = System.Guid.NewGuid().ToString();
+
+        // only relevant for pub/sub
+        public string Topic { get; set; } = string.Empty;
     }
 }

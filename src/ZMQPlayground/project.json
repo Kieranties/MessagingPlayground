@@ -17,10 +17,12 @@
   
   "commands": {
     "ZMQPlayground": "ZMQPlayground",
-    "push": "ZMQPlayground --socketType Push",
-    "pull": "ZMQPlayground --socketType Pull",
-    "request": "ZMQPlayground --socketType Request",
-    "response": "ZMQPlayground --socketType Response"
+    "push": "ZMQPlayground --socketType ZMQ.Sockets.Push",
+    "pull": "ZMQPlayground --socketType ZMQ.Sockets.Pull",
+    "request": "ZMQPlayground --socketType ZMQ.Sockets.Request",
+    "response": "ZMQPlayground --socketType ZMQ.Sockets.Response",
+    "publisher": "ZMQPlayground --socketType ZMQ.Sockets.Publisher",
+    "subscriber": "ZMQPlayground --socketType ZMQ.Sockets.Subscriber"
   },
 
   "frameworks": {
