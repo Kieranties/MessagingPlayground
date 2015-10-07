@@ -1,0 +1,29 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "ZMQPlayground Console Application",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "Microsoft.Framework.Configuration.CommandLine": "1.0.0-beta7",
+    "Microsoft.Framework.DependencyInjection": "1.0.0-beta7",
+    "Microsoft.Framework.Logging": "1.0.0-beta7",
+    "Microsoft.Framework.Logging.Console": "1.0.0-beta7",    
+    "Microsoft.Framework.OptionsModel": "1.0.0-beta7",
+    "NetMQ": "3.3.2.1"
+  },
+  
+  "commands": {
+    "ZMQPlayground": "ZMQPlayground",
+    "push": "ZMQPlayground --socketType Push",
+    "pull": "ZMQPlayground --socketType Pull",
+    "request": "ZMQPlayground --socketType Request",
+    "response": "ZMQPlayground --socketType Response"
+  },
+
+  "frameworks": {
+    "dnx451": { }    
+  }
+}
