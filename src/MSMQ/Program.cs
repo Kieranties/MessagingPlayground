@@ -84,7 +84,7 @@ namespace MSMQ
 
                         for (int x = 0; x < (count.HasValue() ? int.Parse(count.Value()) : 1000); x++)
                         {
-                            handler(queue, $"Message: {x}");
+                            handler(queue, $"[{x}] - {message.Value}");
                         }
 
                         Console.WriteLine(sw.ElapsedMilliseconds);
