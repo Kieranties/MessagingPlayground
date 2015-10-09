@@ -2,90 +2,64 @@
 using System;
 using System.Messaging;
 using POC.Messages.Commands;
-using POC.Integration.Workflows;
 using Microsoft.Framework.DependencyInjection;
 using POC.Messages;
 using POC.Messages.Queries;
-using POC.Integration.Queries;
 using Microsoft.Framework.Configuration;
+using POC.Handler.Handlers;
+using POC.Integration;
+using POC.Messages.Event;
 
 namespace POC.Handler
 {
     public class Program
     {
-        private readonly ILogger<Program> _logger;
-        private readonly IServiceProvider _services;
-
-        public Program()
-        {
-            _services = BuildServiceProvider();
-            _logger = _services.GetRequiredService<ILogger<Program>>();
-        }
-
+        private ILogger<Program> _logger;
+        private IServiceProvider _services;
+        
         public void Main(string[] args)
         {
             var config = new ConfigurationBuilder().AddCommandLine(args).Build();
             var options = new Options();
             config.Bind(options);
 
-            using(var queue = new MessageQueue(options.Queue))
+            _services = BuildServiceProvider(options);
+            _logger = _services.GetRequiredService<ILogger<Program>>();
+
+            
+            using (var queue = new MessageQueue(options.Queue))
             {
-                while (true)
+                _logger.LogInformation($"Listening on {options.Queue}");
+                if (!string.IsNullOrWhiteSpace(options.MulticastAddress))
                 {
-                    _logger.LogInformation($"Listening on {options.Queue}");
+                    queue.MulticastAddress = options.MulticastAddress;
+                    _logger.LogInformation($"Multicast address: {options.MulticastAddress}");
+                }
+
+                while (true)
+                {                    
                     var message = queue.Receive();
-                    var messageBody = message.BodyStream.FromJson(message.Label);
-                    var messageType = messageBody.GetType();
-                    if (messageType == typeof(UnsubscribeCommand))
-                    {
-                        Unsubscribe((UnsubscribeCommand)messageBody);
-                    }
-                    else if (messageType == typeof(DoesUserExistRequest))
-                    {
-                        CheckUserExists((DoesUserExistRequest)messageBody, message);
-                    }
+
+                    // make generic type - this can be improved upon
+                    var handlerType = typeof(MSMQMessageHandler<>).MakeGenericType(Type.GetType(message.Label));                    
+                    var handler = _services.GetService(handlerType) as MSMQMessageHandler;
+                    handler.Handle(message);                    
                 }
             }
         }
-
-        /// <summary>
-        /// Send a message to check if a user exists using a Request-Response pattern
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="rawMessage"></param>
-        private void CheckUserExists(DoesUserExistRequest message, Message rawMessage)
-        {
-            _logger.LogInformation($"Starting CheckUserExists for {message.EmailAddress}, at: {DateTime.Now}");
-
-            var userExists = new DoesUserExistResponse
-            {
-                Exists = DoesUserExist.Execute(message.EmailAddress)
-            };
-
-            using(var queue = rawMessage.ResponseQueue)
-            {
-                var responseMessage = new Message
-                {
-                    BodyStream = userExists.ToJsonStream(),
-                    Label = userExists.GetMessageType()
-                };
-
-                queue.Send(responseMessage);
-            }
-
-            _logger.LogInformation($"Returned {userExists.Exists} for CheckUserExists for {message.EmailAddress}, at: {DateTime.Now}");
-        }
-
-        private void Unsubscribe(UnsubscribeCommand message)
-        {
-            _logger.LogInformation($"Starting unsubscribe for {message.EmailAddress}, at: {DateTime.Now}");
-            var workflow = new UnsubscribeWorkflow(message.EmailAddress);
-            workflow.Run();
-        }
-
-        private IServiceProvider BuildServiceProvider()
+        
+        private IServiceProvider BuildServiceProvider(Options options)
         {
             var services = new ServiceCollection().AddLogging();
+
+            services.AddTransient<MSMQMessageHandler<DoesUserExistRequest>, DoesUserExistRequestHandler>();
+            services.AddTransient<MSMQMessageHandler<UnsubscribeCommand>, UnsubscribeHandler>();
+
+            if (!string.IsNullOrWhiteSpace(options.UnsubscribeHandler))
+            {
+                services.AddTransient(typeof(MSMQMessageHandler<UserUnsubscribed>), Type.GetType(options.UnsubscribeHandler));                
+            }
+
             var provider = services.BuildServiceProvider();
 
             Configure(provider);

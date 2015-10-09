@@ -19,7 +19,12 @@
   },
 
   "commands": {
-    "POC.Handler": "POC.Handler"
+    "POC.Handler": "POC.Handler",
+    "user": "POC.Handler --Queue .\\private$\\poc.messagequeue.doesuserexist",
+    "unsubscribe": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe",
+    "legacy": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-legacy --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeLegacyHandler",
+    "crm": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-crm --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeCrmHandler",
+    "fulfilment": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-fulfilment --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
   },
 
   "frameworks": {

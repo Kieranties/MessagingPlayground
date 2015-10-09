@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using POC.Messages;
+using POC.Messages.Event;
+using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Messaging;
 
 namespace POC.Integration.Workflows
 {
     public class UnsubscribeWorkflow
     {
-        private const int StepDuration = 1;
+        public static int StepDuration = 10;
 
         public UnsubscribeWorkflow(string emailAddress)
         {
@@ -20,29 +20,37 @@ namespace POC.Integration.Workflows
         public void Run()
         {
             PersistAsUnsubscribed();
-            UnsubscribeInLegacySystem();
-            SetCrmMailingReference();
-            CancelPendingMailshots();
+            NotifyUserUnsubscribed();
         }
 
-        private void CancelPendingMailshots()
+        private void NotifyUserUnsubscribed()
         {
-            Thread.Sleep(StepDuration);
-        }
+            var @event = new UserUnsubscribed
+            {
+                EmailAddress = EmailAddress
+            };
 
-        private void SetCrmMailingReference()
-        {
-            Thread.Sleep(StepDuration);
-        }
+            using (var queue = new MessageQueue("FormatName:MULTICAST=234.1.1.1:8001"))
+            {
+                var message = new Message
+                {
+                    BodyStream = @event.ToJsonStream(),
+                    Label = @event.GetMessageType(),
+                    Recoverable = true
+                };
 
-        private void UnsubscribeInLegacySystem()
-        {
-            Thread.Sleep(StepDuration);
+                queue.Send(message);
+            }
         }
-
+        
         private void PersistAsUnsubscribed()
         {
-            Thread.Sleep(StepDuration);
+            var user = Data.UserRepository.Instance.Users.FirstOrDefault(x => x.EmailAddress == EmailAddress);
+            if(user != null)
+            {
+                user.IsUnsubscribed = true;
+                user.UnsubscribedAt = DateTime.Now;
+            }                
         }
     }
 }

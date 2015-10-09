@@ -6,7 +6,15 @@
   "projectUrl": "",
   "licenseUrl": "",
 
+  "dependencies": {
+    "POC.Messages": ""
+  },
+
   "frameworks": {
-    "dnx451": { }
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Messaging": ""
+      }
+    }
   }
 }
