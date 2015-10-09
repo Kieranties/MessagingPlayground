@@ -8,7 +8,7 @@ namespace POC.Integration.Workflows
 {
     public class UnsubscribeWorkflow
     {
-        private const int StepDuration = 1000;
+        private const int StepDuration = 1;
 
         public UnsubscribeWorkflow(string emailAddress)
         {
