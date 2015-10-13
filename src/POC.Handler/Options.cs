@@ -1,16 +1,16 @@
-﻿using System;
+﻿using POC.Messaging;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace POC.Handler
 {
     public class Options
     {
-        public string Queue { get; set; }
+        public string ListenTo { get; set; }
 
-        public string MulticastAddress { get; set; }
+        public MessagePattern Pattern { get; set; }
 
-        public string UnsubscribeHandler { get; set; }
+        public string Handler { get; set; }
+
+        public Dictionary<string, string> Queues { get; set; } = new Dictionary<string, string>();
     }
 }

@@ -1,77 +1,59 @@
 ﻿using Microsoft.Framework.Logging;
 using System;
-using System.Messaging;
-using POC.Messages.Commands;
 using Microsoft.Framework.DependencyInjection;
-using POC.Messages;
-using POC.Messages.Queries;
 using Microsoft.Framework.Configuration;
-using POC.Handler.Handlers;
-using POC.Integration;
-using POC.Messages.Event;
+using POC.Messaging;
+using POC.Messaging.MSMQ;
+using POC.Messaging.ZeroMq;
 
 namespace POC.Handler
 {
     public class Program
     {
-        private ILogger<Program> _logger;
-        private IServiceProvider _services;
-        
         public void Main(string[] args)
         {
-            var config = new ConfigurationBuilder().AddCommandLine(args).Build();
+            var config = new ConfigurationBuilder(".")
+                .AddCommandLine(args)
+                .AddJsonFile("msmq.queues.json")
+                .Build();
+
             var options = new Options();
             config.Bind(options);
 
-            _services = BuildServiceProvider(options);
-            _logger = _services.GetRequiredService<ILogger<Program>>();
-
-            
-            using (var queue = new MessageQueue(options.Queue))
+            var services = BuildServiceProvider(options);
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var handlerFactory = services.GetRequiredService<IMessageHandlerFactory>();
+            var queueFactory = services.GetRequiredService<IMessageQueueFactory>();
+                        
+            var queue = queueFactory.CreateInbound(options.ListenTo, options.Pattern);
+            queue.Listen(msg =>
             {
-                _logger.LogInformation($"Listening on {options.Queue}");
-                if (!string.IsNullOrWhiteSpace(options.MulticastAddress))
-                {
-                    queue.MulticastAddress = options.MulticastAddress;
-                    _logger.LogInformation($"Multicast address: {options.MulticastAddress}");
-                }
-
-                while (true)
-                {                    
-                    var message = queue.Receive();
-
-                    // make generic type - this can be improved upon
-                    var handlerType = typeof(MSMQMessageHandler<>).MakeGenericType(Type.GetType(message.Label));                    
-                    var handler = _services.GetService(handlerType) as MSMQMessageHandler;
-                    handler.Handle(message);                    
-                }
-            }
+                var handler = handlerFactory.GetHandler(msg.Body.GetType());
+                handler.Handle(msg, queue);
+            });            
         }
         
+        // Composition rootgithub
         private IServiceProvider BuildServiceProvider(Options options)
         {
             var services = new ServiceCollection().AddLogging();
 
-            services.AddTransient<MSMQMessageHandler<DoesUserExistRequest>, DoesUserExistRequestHandler>();
-            services.AddTransient<MSMQMessageHandler<UnsubscribeCommand>, UnsubscribeHandler>();
-
-            if (!string.IsNullOrWhiteSpace(options.UnsubscribeHandler))
+            services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
+            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<MsmqQueueFactory>(sp, options.Queues));
+            
+            if (!string.IsNullOrWhiteSpace(options.Handler))
             {
-                services.AddTransient(typeof(MSMQMessageHandler<UserUnsubscribed>), Type.GetType(options.UnsubscribeHandler));                
+                services.AddTransient(typeof(IMessageHandler), Type.GetType(options.Handler));
             }
 
             var provider = services.BuildServiceProvider();
 
-            Configure(provider);
-
-            return provider;
-        }
-
-        private void Configure(IServiceProvider services)
-        {
-            var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+            // configure
+            var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
             loggerFactory.MinimumLevel = LogLevel.Debug;
             loggerFactory.AddConsole(loggerFactory.MinimumLevel);
+
+            return provider;
         }
     }
 }

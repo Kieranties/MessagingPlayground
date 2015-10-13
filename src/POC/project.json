@@ -5,25 +5,21 @@
     "Microsoft.AspNet.Server.IIS": "1.0.0-beta7",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-beta7",
 
+    "Microsoft.Framework.Configuration.Json": "1.0.0-beta7",
+    "Microsoft.Framework.Logging.Console": "1.0.0-beta7",
     "Microsoft.AspNet.Mvc": "6.0.0-beta7",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-beta7",
-    "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta7",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-beta7",    
     "Microsoft.AspNet.StaticFiles": "1.0.0-*",
     "Newtonsoft.Json": "7.0.1",
 
-    "POC.Messages": "",
-    "POC.Integration": ""
+    "POC.Messaging.MSMQ": "",
+    "POC.Messaging.ZeroMq": ""
   },
   "commands": {
-    "web": "Microsoft.AspNet.Hosting --config hosting.ini",
-    "gen": "Microsoft.Framework.CodeGeneration"
+    "web": "Microsoft.AspNet.Hosting --config hosting.ini"
   },
   "frameworks": {
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Messaging": ""
-      }
-    }
+    "dnx451": { }
   },
   "publishExclude": [
     "node_modules",

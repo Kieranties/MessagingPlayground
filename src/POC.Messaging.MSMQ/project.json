@@ -1,0 +1,22 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Messaging.MSMQ Class Library",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "POC.Integration": "",
+
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7"
+  },
+
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Messaging": ""
+      }
+    }
+  }
+}

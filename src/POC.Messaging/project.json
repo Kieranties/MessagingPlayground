@@ -1,0 +1,17 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Messaging Class Library",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {    
+    "Newtonsoft.Json": "7.0.1",
+    "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-beta7"
+  },
+
+    "frameworks": {
+      "dnx451": { }
+    }
+  }

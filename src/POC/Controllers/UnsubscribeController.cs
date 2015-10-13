@@ -1,19 +1,24 @@
-using System.Linq;
 using Microsoft.AspNet.Mvc;
-using POC.Messages;
 using POC.Messages.Commands;
-using System.Messaging;
-using Newtonsoft.Json;
-using System.Text;
-using System.IO;
-using System;
 using POC.Messages.Queries;
+using POC.Messaging;
 
 namespace POC.Controllers
 {
     [Route("/[controller]")]
     public class UnsubscribeController : Controller
     {
+        private readonly IMessageQueue _unsubscribe;
+        private readonly IMessageQueue _userExist;
+        private readonly IMessageQueue _userExistResponse;
+
+        public UnsubscribeController(IMessageQueueFactory queueFactory)
+        {
+            _userExist = queueFactory.CreateOutbound("doesuserexist", MessagePattern.RequestResponse);
+            _userExistResponse = _userExist.GetResponseQueue();
+            _unsubscribe = queueFactory.CreateOutbound("unsubscribe", MessagePattern.FireAndForget);
+        }
+
         [HttpGet]        
         public IActionResult Index()
         {
@@ -40,63 +45,26 @@ namespace POC.Controllers
         /// <returns></returns>
         private bool DoesUserExist(string emailAddress)
         {
-            // create a private response queue
-            var responseAddress = Guid.NewGuid().ToString().Substring(0, 6);
-            responseAddress = ".\\private$\\" + responseAddress;
+            var exists = false;
 
-            try
-            {                
-                using (var responseQueue = MessageQueue.Create(responseAddress))
-                {
-                    var doesUserExist = new DoesUserExistRequest
-                    {
-                        EmailAddress = emailAddress
-                    };
-
-                    using (var requestQueue = new MessageQueue(".\\private$\\poc.messagequeue.doesuserexist"))
-                    {
-                        var message = new Message
-                        {
-                            BodyStream = doesUserExist.ToJsonStream(),
-                            Label = doesUserExist.GetMessageType(),
-                            ResponseQueue = responseQueue // set the response queue to expect a response on
-                        };
-                        requestQueue.Send(message);
-                    }
-
-                    var response = responseQueue.Receive(); // handle the response (blocking call)
-                    var responseBody = response.BodyStream.FromJson<DoesUserExistResponse>();
-                    
-                    return responseBody.Exists;
-                }
-            }
-            finally // dispose of message queue if failure occurs
+            var doesUserExist = new DoesUserExistRequest { EmailAddress = emailAddress };                        
+            var message = new Message
             {
-                if (MessageQueue.Exists(responseAddress))
-                {
-                    MessageQueue.Delete(responseAddress);
-                }
-            }
+                Body = doesUserExist,
+                ResponseAddress = _userExistResponse.Address
+            };
+            _userExist.Send(message);
+
+            _userExistResponse.Receive(msg => exists = msg.BodyAs<DoesUserExistResponse>().Exists);
+            
+            return exists;            
         }
 
         private void StartUnsubscribe(string emailAddress)
         {
-            var unsubscribeCommand = new UnsubscribeCommand
-            {
-                EmailAddress = emailAddress
-            };
-
-            using (var queue = new MessageQueue(".\\private$\\poc.messagequeue.unsubscribe"))
-            {
-                // serailize to json and write raw bytes
-                var message = new Message
-                {
-                    BodyStream = unsubscribeCommand.ToJsonStream(),
-                    Label = unsubscribeCommand.GetMessageType()
-                };
-
-                queue.Send(message);
-            }
+            var unsubscribeCommand = new UnsubscribeCommand { EmailAddress = emailAddress };            
+            var message = new Message { Body = unsubscribeCommand };
+            _unsubscribe.Send(message);
         }
     }
 }

@@ -1,30 +1,32 @@
 ﻿using Microsoft.Framework.Logging;
-using POC.Integration;
 using POC.Integration.Workflows;
 using POC.Messages.Commands;
+using POC.Messaging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Messaging;
-using System.Threading.Tasks;
 
 namespace POC.Handler.Handlers
 {
-    public class UnsubscribeHandler : MSMQMessageHandler<UnsubscribeCommand>
+    public class UnsubscribeHandler : MessageHandlerBase<UnsubscribeCommand>
     {
         private readonly ILogger<UnsubscribeHandler> _logger;
+        private readonly IMessageQueueFactory _queueFactory;
 
-        public UnsubscribeHandler(ILogger<UnsubscribeHandler> logger)
+        public UnsubscribeHandler(ILogger<UnsubscribeHandler> logger, IMessageQueueFactory queueFactory)
         {
             _logger = logger;
-        }        
+            _queueFactory = queueFactory;
+        }
 
-        protected override void Handle(Message message, UnsubscribeCommand content)
+        public override void Handle(Message message, IMessageQueue sourceQueue)
         {
-            _logger.LogInformation($"[Received] unsubscribe for {content.EmailAddress}, at: {DateTime.Now}");
-            var workflow = new UnsubscribeWorkflow(content.EmailAddress);
+            var data = message.BodyAs<UnsubscribeCommand>();
+
+            _logger.LogInformation($"[{DateTime.Now}] Started: {data.EmailAddress}");                
+                        
+            var workflow = new UnsubscribeWorkflow(data.EmailAddress, _queueFactory);
             workflow.Run();
-            _logger.LogInformation($"[Processed] unsubscribe for {content.EmailAddress}, at: {DateTime.Now}");
+
+            _logger.LogInformation($"[{DateTime.Now}] Finished: {data.EmailAddress}");
         }
     }
 }

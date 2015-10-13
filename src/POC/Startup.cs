@@ -1,19 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
+﻿using Microsoft.AspNet.Builder;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
+using POC.Messaging;
+using POC.Messaging.MSMQ;
+using POC.Messaging.ZeroMq;
+using System.Collections.Generic;
 
 namespace POC
 {
     public class Startup
     {
-        // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
+        private readonly IApplicationEnvironment _appEnv;
+
+        public Startup(IApplicationEnvironment appEnv, ILoggerFactory loggerFactory)
+        {
+            _appEnv = appEnv;
+
+            loggerFactory.MinimumLevel = LogLevel.Debug;
+            loggerFactory.AddConsole(loggerFactory.MinimumLevel);
+        }
+        
         public void ConfigureServices(IServiceCollection services)
         {
+            var config = new ConfigurationBuilder(_appEnv.ApplicationBasePath)
+                .AddJsonFile($"msmq.queues.json")
+                .Build();
+
+            var options = new Options();
+            config.Bind(options);
+
             services.AddMvc();
+            services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
+            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<MsmqQueueFactory>(sp, options.Queues));
         }
 
         public void Configure(IApplicationBuilder app)
@@ -22,6 +42,11 @@ namespace POC
             app.UseFileServer();
 
             app.UseMvc();            
+        }
+
+        private class Options
+        {
+            public Dictionary<string, string> Queues { get; set; } = new Dictionary<string, string>();
         }
     }
 }

@@ -1,14 +1,15 @@
 ﻿{
   "version": "1.0.0-*",
-  "description": "POC.Integration Class Library",
+  "description": "POC.Messaging.ZeroMq Class Library",
   "authors": [ "kmn" ],
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",
 
   "dependencies": {
-    "POC.Messages": "",
-    "POC.Messaging": ""
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7",
+    "POC.Messaging": "",
+    "NetMQ": "3.3.2.1"
   },
 
   "frameworks": {

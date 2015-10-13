@@ -7,31 +7,28 @@
   "licenseUrl": "",
 
   "dependencies": {
-    "POC.Integration": "",
-    "POC.Messages": "",
+    "POC.Messaging.MSMQ": "",
+    "POC.Messaging.ZeroMq": "",
+
     "Microsoft.Framework.Configuration": "1.0.0-beta7",
     "Microsoft.Framework.Configuration.CommandLine": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-beta7",
     "Microsoft.Framework.OptionsModel": "1.0.0-beta7",
     "Microsoft.Framework.DependencyInjection": "1.0.0-beta7",
     "Microsoft.Framework.Logging": "1.0.0-beta7",
-    "Microsoft.Framework.Logging.Console": "1.0.0-beta7",
-    "Newtonsoft.Json": "7.0.1"
+    "Microsoft.Framework.Logging.Console": "1.0.0-beta7"
   },
 
   "commands": {
     "POC.Handler": "POC.Handler",
-    "user": "POC.Handler --Queue .\\private$\\poc.messagequeue.doesuserexist",
-    "unsubscribe": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe",
-    "legacy": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-legacy --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeLegacyHandler",
-    "crm": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-crm --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeCrmHandler",
-    "fulfilment": "POC.Handler --Queue .\\private$\\poc.messagequeue.unsubscribe-fulfilment --MulticastAddress 234.1.1.1:8001 --UnsubscribeHandler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
+    "user": "POC.Handler --ListenTo doesuserexist --Handler POC.Handler.Handlers.DoesUserExistHandler --Pattern RequestResponse",
+    "unsubscribe": "POC.Handler --ListenTo unsubscribe --Handler POC.Handler.Handlers.UnsubscribeHandler --Pattern FireAndForget",
+    "legacy": "POC.Handler --ListenTo unsubscribe-legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler --Pattern PublishSubscribe",
+    "crm": "POC.Handler --ListenTo unsubscribe-crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler --Pattern PublishSubscribe",
+    "fulfilment": "POC.Handler --ListenTo unsubscribe-fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler --Pattern PublishSubscribe"
   },
 
   "frameworks": {
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Messaging": ""
-      }
-    }
+    "dnx451": { }
   }
 }

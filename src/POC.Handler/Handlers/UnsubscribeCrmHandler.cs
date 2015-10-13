@@ -1,28 +1,30 @@
 ﻿using Microsoft.Framework.Logging;
-using POC.Integration;
 using POC.Integration.Workflows;
-using POC.Messages.Commands;
 using POC.Messages.Event;
+using POC.Messaging;
 using System;
-using System.Messaging;
 
 namespace POC.Handler.Handlers
 {
-    public class UnsubscribeCrmHandler : MSMQMessageHandler<UserUnsubscribed>
+    public class UnsubscribeCrmHandler : MessageHandlerBase<UserUnsubscribed>
     {
         private readonly ILogger<UnsubscribeCrmHandler> _logger;
 
         public UnsubscribeCrmHandler(ILogger<UnsubscribeCrmHandler> logger)
         {
             _logger = logger;
-        }        
+        }
 
-        protected override void Handle(Message message, UserUnsubscribed content)
+        public override void Handle(Message message, IMessageQueue sourceQueue)
         {
-            _logger.LogInformation($"[Received] unsubscribe for {content.EmailAddress}, at: {DateTime.Now}");
-            var workflow = new UnsubscribeCrmWorkflow(content.EmailAddress);
+            var data = message.BodyAs<UserUnsubscribed>();
+
+            _logger.LogInformation($"[{DateTime.Now}] Started: {data.EmailAddress}");
+
+            var workflow = new UnsubscribeCrmWorkflow(data.EmailAddress);
             workflow.Run();
-            _logger.LogInformation($"[Processed] unsubscribe for {content.EmailAddress}, at: {DateTime.Now}");
+
+            _logger.LogInformation($"[{DateTime.Now}] Finished: {data.EmailAddress}");
         }
     }
 }
