@@ -1,0 +1,21 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Messaging.Azure Class Library",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "POC.Messaging": "",
+    "WindowsAzure.ServiceBus": "3.0.4",
+    "Microsoft.WindowsAzure.ConfigurationManager": "3.1.0",
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.Abstractions": "1.0.0-beta7",
+    "Microsoft.Framework.OptionsModel": "1.0.0-beta7"
+  },
+
+  "frameworks": {
+    "dnx451": { }
+  }
+}

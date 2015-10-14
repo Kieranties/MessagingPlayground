@@ -1,0 +1,125 @@
+﻿{
+  "zeromq": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "address": "tcp://127.0.0.1:5556",
+        "direction": "Inbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "address": "tcp://127.0.0.1:5555",
+        "direction": "Inbound",
+        "pattern": "FireAndForget"
+      },
+      {
+        "name": "unsubscribe-event",
+        "address": "pgm://239.192.1.1:5557",
+        "direction": "Outbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:legacy",
+        "address": "pgm://239.192.1.1:5557",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:crm",
+        "address": "pgm://239.192.1.1:5557",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:fulfilment",
+        "address": "pgm://239.192.1.1:5557",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      }
+    ]
+  },
+  "msmq": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "address": ".\\private$\\poc.messagequeue.doesuserexist",
+        "direction": "Inbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "address": ".\\private$\\poc.messagequeue.unsubscribe",
+        "direction": "Inbound",
+        "pattern": "FireAndForget"
+      },
+      {
+        "name": "unsubscribe-event",
+        "address": "FormatName:MULTICAST=234.1.1.1:8001",
+        "direction": "Outbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:legacy",
+        "address": ".\\private$\\poc.messagequeue.unsubscribe-legacy",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:crm",
+        "address": ".\\private$\\poc.messagequeue.unsubscribe-crm",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event:fulfilment",
+        "address": ".\\private$\\poc.messagequeue.unsubscribe-fulfilment",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe"
+      }
+    ]
+  },
+  "azure": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "FireAndForget"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Outbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "legacy"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "crm"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "fulfilment"
+      }
+    ]
+  }
+}

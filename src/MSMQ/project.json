@@ -1,0 +1,24 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "MSMQ Console Application",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-beta7", "type": "build" }
+  },
+
+  "commands": {
+    "MSMQ": "MSMQ"
+  },
+
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Messaging": ""
+      }
+    }   
+  }
+}

@@ -1,0 +1,50 @@
+﻿{
+  "zeromq": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "address": "tcp://127.0.0.1:5556",
+        "direction": "Outbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "address": "tcp://127.0.0.1:5555",
+        "direction": "Outbound",
+        "pattern": "FireAndForget"
+      }
+    ]
+  },
+  "msmq": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "address": ".\\private$\\poc.messagequeue.doesuserexist",
+        "direction": "Outbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "address": ".\\private$\\poc.messagequeue.unsubscribe",
+        "direction": "Outbound",
+        "pattern": "FireAndForget"
+      }
+    ]
+  },
+  "azure": {
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Outbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Outbound",
+        "pattern": "FireAndForget"
+      }
+    ]
+  }
+}

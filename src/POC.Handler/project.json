@@ -1,0 +1,35 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Handler Console Application",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "POC.Messaging.MSMQ": "",
+    "POC.Messaging.ZeroMq": "",
+    "POC.Messaging.Azure": "",
+
+    "Microsoft.Framework.Configuration": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.CommandLine": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-beta7",
+    "Microsoft.Framework.OptionsModel": "1.0.0-beta7",
+    "Microsoft.Framework.DependencyInjection": "1.0.0-beta7",
+    "Microsoft.Framework.Logging": "1.0.0-beta7",
+    "Microsoft.Framework.Logging.Console": "1.0.0-beta7"
+  },
+
+  "commands": {
+    "POC.Handler": "POC.Handler",
+    "user": "POC.Handler --ListenTo doesuserexist --Handler POC.Handler.Handlers.DoesUserExistHandler",
+    "unsubscribe": "POC.Handler --ListenTo unsubscribe --Handler POC.Handler.Handlers.UnsubscribeHandler",
+    "legacy": "POC.Handler --ListenTo unsubscribe-event:legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler",
+    "crm": "POC.Handler --ListenTo unsubscribe-event:crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler",
+    "fulfilment": "POC.Handler --ListenTo unsubscribe-event:fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
+  },
+
+  "frameworks": {
+    "dnx451": { }
+  }
+}

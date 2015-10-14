@@ -1,0 +1,20 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "POC.Messaging.ZeroMq Class Library",
+  "authors": [ "kmn" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.Abstractions": "1.0.0-beta7",
+    "Microsoft.Framework.OptionsModel": "1.0.0-beta7",
+    "POC.Messaging": "",
+    "NetMQ": "3.3.2.1"
+  },
+
+  "frameworks": {
+    "dnx451": { }
+  }
+}
