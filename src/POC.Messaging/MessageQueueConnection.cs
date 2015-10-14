@@ -7,6 +7,8 @@ namespace POC.Messaging
 {
     public class MessageQueueConnection : IMessageQueueConnection
     {
+        public string Id => Name;
+
         public string Name { get; set; }
 
         public string Address { get; set; }

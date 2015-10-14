@@ -4,21 +4,27 @@ using System.IO;
 
 namespace POC.Messaging.Azure
 {
-    public class AzureMessageQueue : MessageQueueBase<QueueClient>
+    public class AzureMessageQueue : MessageQueueBase<IAzureClient>
     {
-        private readonly TopicClient _topicClient;
-
         public AzureMessageQueue(AzureMessageQueueConnection connection, IMessageQueueFactory queueFactory)
             : base(connection, queueFactory)
         {
             AzureConnection = connection;
+
             switch (connection.Pattern)
             {
                 case MessagePattern.PublishSubscribe:
-                    _topicClient = TopicClient.CreateFromConnectionString(connection.Endpoint, connection.Name);
+                    if(connection.Direction == Direction.Inbound)
+                    {
+                        Queue = new AzureSubscriptionClient(connection);
+                    }
+                    else
+                    {
+                        Queue = new AzureTopicClient(connection);
+                    }
                     break;
                 default:
-                    Queue = QueueClient.CreateFromConnectionString(connection.Endpoint, connection.Name);
+                    Queue = new AzureQueueClient(connection);
                     break;
             }            
         }
@@ -29,7 +35,7 @@ namespace POC.Messaging.Azure
                 
         public override void Dispose()
         {
-            Queue.Close();
+            Queue.Dispose();
             ResponseQueue.Dispose();
         }
 
@@ -43,7 +49,7 @@ namespace POC.Messaging.Azure
             if (ResponseQueue != null)
                 return ResponseQueue;
                         
-            var queueName = $"{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}-{Guid.NewGuid().ToString("D")}||{AzureConnection.Endpoint}";
+            var queueName = $"{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}-{Guid.NewGuid().ToString("D")}";
             var connection = new AzureMessageQueueConnection { Name = queueName, Endpoint = AzureConnection.Endpoint, Direction = Direction.Inbound, Pattern = MessagePattern.RequestResponse };
             ResponseQueue = QueueFactory.Create(connection);
 
@@ -63,16 +69,7 @@ namespace POC.Messaging.Azure
         public override void Send(Message message)
         {
             var brokeredMessage = new BrokeredMessage(message.ToJsonStream(), true);
-
-            switch (Connection.Pattern)
-            {
-                case MessagePattern.PublishSubscribe:
-                    _topicClient.Send(brokeredMessage);
-                    break;
-                default:                    
-                    Queue.Send(brokeredMessage);
-                    break;
-            }
-        }
+            Queue.Send(brokeredMessage);
+        }        
     }
 }

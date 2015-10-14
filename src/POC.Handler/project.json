@@ -24,9 +24,9 @@
     "POC.Handler": "POC.Handler",
     "user": "POC.Handler --ListenTo doesuserexist --Handler POC.Handler.Handlers.DoesUserExistHandler",
     "unsubscribe": "POC.Handler --ListenTo unsubscribe --Handler POC.Handler.Handlers.UnsubscribeHandler",
-    "legacy": "POC.Handler --ListenTo unsubscribe-legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler",
-    "crm": "POC.Handler --ListenTo unsubscribe-crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler",
-    "fulfilment": "POC.Handler --ListenTo unsubscribe-fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
+    "legacy": "POC.Handler --ListenTo unsubscribe-event:legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler",
+    "crm": "POC.Handler --ListenTo unsubscribe-event:crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler",
+    "fulfilment": "POC.Handler --ListenTo unsubscribe-event:fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
   },
 
   "frameworks": {

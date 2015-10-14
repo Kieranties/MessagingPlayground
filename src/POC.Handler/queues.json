@@ -14,25 +14,25 @@
         "pattern": "FireAndForget"
       },
       {
-        "name": "unsubscribed-event",
+        "name": "unsubscribe-event",
         "address": "pgm://239.192.1.1:5557",
         "direction": "Outbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-legacy",
+        "name": "unsubscribe-event:legacy",
         "address": "pgm://239.192.1.1:5557",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-crm",
+        "name": "unsubscribe-event:crm",
         "address": "pgm://239.192.1.1:5557",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-fulfilment",
+        "name": "unsubscribe-event:fulfilment",
         "address": "pgm://239.192.1.1:5557",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
@@ -54,25 +54,25 @@
         "pattern": "FireAndForget"
       },
       {
-        "name": "unsubscribed-event",
+        "name": "unsubscribe-event",
         "address": "FormatName:MULTICAST=234.1.1.1:8001",
         "direction": "Outbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-legacy",
+        "name": "unsubscribe-event:legacy",
         "address": ".\\private$\\poc.messagequeue.unsubscribe-legacy",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-crm",
+        "name": "unsubscribe-event:crm",
         "address": ".\\private$\\poc.messagequeue.unsubscribe-crm",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
       },
       {
-        "name": "unsubscribe-fulfilment",
+        "name": "unsubscribe-event:fulfilment",
         "address": ".\\private$\\poc.messagequeue.unsubscribe-fulfilment",
         "direction": "Inbound",
         "pattern": "PublishSubscribe"
@@ -80,11 +80,46 @@
     ]
   },
   "azure": {
-    "unsubscribe": "unsubscribe||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
-    "doesuserexist": "doesuserexist||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
-    "unsubscribed-event": "unsubscribed-event||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
-    "unsubscribe-legacy": "unsubscribe-legacy||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
-    "unsubscribe-crm": "unsubscribe-crm||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
-    "unsubscribe-fulfilment": "unsubscribe-fulfilment||Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ="
+    "queues": [
+      {
+        "name": "doesuserexist",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "RequestResponse"
+      },
+      {
+        "name": "unsubscribe",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "FireAndForget"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Outbound",
+        "pattern": "PublishSubscribe"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "legacy"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "crm"
+      },
+      {
+        "name": "unsubscribe-event",
+        "endpoint": "Endpoint=sb://kmn-unsubscribe.servicebus.windows.net/;SharedAccessKeyName=unsubscribe-handler;SharedAccessKey=Ky/UidYbJl45beJoiO3rUZ5GsSbJ5GFdSt9rqMbk5QQ=",
+        "direction": "Inbound",
+        "pattern": "PublishSubscribe",
+        "subscription": "fulfilment"
+      }
+    ]
   }
 }

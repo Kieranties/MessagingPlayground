@@ -1,4 +1,5 @@
 ﻿using Microsoft.Framework.Logging;
+using Microsoft.ServiceBus;
 using System.Collections.Generic;
 
 namespace POC.Messaging.Azure
@@ -17,10 +18,37 @@ namespace POC.Messaging.Azure
         {
             var azureConnection = (AzureMessageQueueConnection)connection;
 
-            _logger.LogInformation($"[Registered] {connection.Name} | {connection.Direction} | {connection.Pattern} | {azureConnection.Endpoint}");
+            _logger.LogInformation($"[Registered] {connection.Id} | {connection.Direction} | {connection.Pattern} | {azureConnection.Endpoint}");
             return new AzureMessageQueue(azureConnection, this);
         }
 
-        public override IMessageQueue Create(IMessageQueueConnection connection) => Connect(connection);
+        public override IMessageQueue Create(IMessageQueueConnection connection)
+        {
+            var azureConnection = (AzureMessageQueueConnection)connection;
+
+            var manager = NamespaceManager.CreateFromConnectionString(azureConnection.Endpoint);
+
+            if (string.IsNullOrWhiteSpace(azureConnection.Subscription))
+            {
+                if (!manager.QueueExists(azureConnection.Name))
+                {
+                    manager.CreateQueue(azureConnection.Name);
+                }
+            }
+            else
+            {
+                if (!manager.TopicExists(azureConnection.Name))
+                {
+                    manager.CreateTopic(azureConnection.Name);
+                }
+
+                if (!manager.SubscriptionExists(azureConnection.Name, azureConnection.Subscription))
+                {
+                    manager.CreateSubscription(azureConnection.Name, azureConnection.Subscription);
+                }
+            }
+
+            return Connect(connection);
+        }
     }
 }

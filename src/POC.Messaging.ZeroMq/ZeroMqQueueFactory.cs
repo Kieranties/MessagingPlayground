@@ -17,7 +17,7 @@ namespace POC.Messaging.ZeroMq
 
         public override IMessageQueue Connect(IMessageQueueConnection connection)
         {
-            _logger.LogInformation($"[Registered] {connection.Name} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
+            _logger.LogInformation($"[Registered] {connection.Id} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
             return new ZeroMqMessageQueue(_context, connection, this);
         }
 

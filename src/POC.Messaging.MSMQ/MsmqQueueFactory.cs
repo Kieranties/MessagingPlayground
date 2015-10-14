@@ -16,7 +16,7 @@ namespace POC.Messaging.MSMQ
 
         public override IMessageQueue Connect(IMessageQueueConnection connection)
         {
-            _logger.LogInformation($"[Registered] {connection.Name} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
+            _logger.LogInformation($"[Registered] {connection.Id} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
             return new MsmqMessageQueue(connection, this);
         }
 

@@ -11,14 +11,14 @@ namespace POC.Messaging
 
         protected MessageQueueFactoryBase(IList<T> connectionMap)
         {
-            _connectionMap = connectionMap.ToDictionary(entry => entry.Name, entry => entry);
+            _connectionMap = connectionMap.ToDictionary(entry => entry.Id, entry => entry);
         }
 
-        public virtual IMessageQueue Get(string name)
+        public virtual IMessageQueue Get(string id)
         {
-            if (_connectionMap.ContainsKey(name)) // get or add from cache
+            if (_connectionMap.ContainsKey(id)) // get or add from cache
             {
-                return _queues.GetOrAdd(name, key => Connect(_connectionMap[key]));
+                return _queues.GetOrAdd(id, key => Connect(_connectionMap[key]));
             }
             
             return null;

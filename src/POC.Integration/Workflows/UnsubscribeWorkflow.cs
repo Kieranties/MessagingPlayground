@@ -28,7 +28,7 @@ namespace POC.Integration.Workflows
         {
             var @event = new UserUnsubscribed { EmailAddress = EmailAddress };
             var message = new Message { Body = @event };
-            var queue = _queueFactory.Get("unsubscribed-event");
+            var queue = _queueFactory.Get("unsubscribe-event");
             queue.Send(message);
         }
         
