@@ -1,40 +1,59 @@
 ﻿using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Hosting;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using POC.Messaging;
-using POC.Messaging.MSMQ;
-using POC.Messaging.ZeroMq;
-using POC.Messaging.Azure;
-using System.Collections.Generic;
+using System;
 
 namespace POC
 {
     public class Startup
     {
         private readonly IApplicationEnvironment _appEnv;
+        private readonly IConfigurationSection _queueConfig;
+        private readonly Options _options;
 
-        public Startup(IApplicationEnvironment appEnv, ILoggerFactory loggerFactory)
+        public Startup(IApplicationEnvironment appEnv, ILoggerFactory loggerFactory, IHostingEnvironment hostEnv)
         {
             _appEnv = appEnv;
 
             loggerFactory.MinimumLevel = LogLevel.Debug;
             loggerFactory.AddConsole(loggerFactory.MinimumLevel);
+            
+            var runtimeConfig = new ConfigurationBuilder()
+                .AddEnvironmentVariables() // currently not accessible from command line
+                .Build();            
+
+            _options = new Options();
+            runtimeConfig.Bind(_options);
+
+            _queueConfig = new ConfigurationBuilder(_appEnv.ApplicationBasePath)
+               .AddJsonFile("queues.json")
+               .Build()
+               .GetSection(_options.QueueType);
         }
         
         public void ConfigureServices(IServiceCollection services)
-        {
-            var config = new ConfigurationBuilder(_appEnv.ApplicationBasePath)
-                .AddJsonFile($"azure.queues.json")
-                .Build();
-
-            var options = new Options();
-            config.Bind(options);
-
+        {   
             services.AddMvc();
             services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
-            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<AzureQueueFactory>(sp, options.Queues));
+
+            switch (_options.QueueType)
+            {
+                case "zeromq":
+                    services.AddZeroMq(_queueConfig);
+                    break;
+                case "msmq":
+                    services.AddMsmq(_queueConfig);
+                    break;
+                case "azure":
+                    services.AddAzure(_queueConfig);
+                    break;
+                default:
+                    throw new Exception($"Could not resolve queue type {_options.QueueType}");
+            }
         }
 
         public void Configure(IApplicationBuilder app)
@@ -45,9 +64,9 @@ namespace POC
             app.UseMvc();            
         }
 
-        private class Options
+        private class Options<T> where T : IMessageQueueConnection
         {
-            public Dictionary<string, string> Queues { get; set; } = new Dictionary<string, string>();
+            public string QueueType { get; set; }
         }
     }
 }

@@ -1,38 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using NetMQ;
 
 namespace POC.Messaging.ZeroMq
 {
     public class ZeroMqMessageQueue : MessageQueueBase<NetMQSocket>
     {
-        public ZeroMqMessageQueue(NetMQContext context, string address, Direction direction, MessagePattern pattern, IMessageQueueFactory queueFactory, IDictionary<string, object> properties)
-            : base(address, direction, pattern, queueFactory, properties)
+        public ZeroMqMessageQueue(NetMQContext context, IMessageQueueConnection connection, IMessageQueueFactory queueFactory)
+            : base(connection, queueFactory)
         {
-            Queue = direction == Direction.Inbound ? GetInboundSocket(context) : GetOutboundSocket(context);
+            Queue = Connection.Direction == Direction.Inbound ? GetInboundSocket(context) : GetOutboundSocket(context);
         }
 
         private NetMQSocket GetInboundSocket(NetMQContext context)
         {
             NetMQSocket socket;
-            switch (Pattern)
+            switch (Connection.Pattern)
             {
                 case MessagePattern.FireAndForget:
                     socket = context.CreatePullSocket();
-                    socket.Bind(Address);
+                    socket.Bind(Connection.Address);
                     break;
                 case MessagePattern.RequestResponse:
                     socket = context.CreateResponseSocket();
-                    socket.Bind(Address);
+                    socket.Bind(Connection.Address);
                     break;
                 case MessagePattern.PublishSubscribe:
                     var subSocket = context.CreateSubscriberSocket();
                     subSocket.SubscribeToAnyTopic();
-                    subSocket.Connect(Address);
+                    subSocket.Connect(Connection.Address);
                     socket = subSocket;
                     break;
                 default:
-                    throw new Exception($"Cannot create an inbound socket for pattern {Pattern}");
+                    throw new Exception($"Cannot create an inbound socket for pattern {Connection.Pattern}");
             }
 
             return socket;
@@ -41,22 +40,22 @@ namespace POC.Messaging.ZeroMq
         private NetMQSocket GetOutboundSocket(NetMQContext context)
         {
             NetMQSocket socket;
-            switch (Pattern)
+            switch (Connection.Pattern)
             {
                 case MessagePattern.FireAndForget:
                     socket = context.CreatePushSocket();
-                    socket.Connect(Address);
+                    socket.Connect(Connection.Address);
                     break;
                 case MessagePattern.RequestResponse:
                     socket = context.CreateRequestSocket();
-                    socket.Connect(Address);
+                    socket.Connect(Connection.Address);
                     break;
                 case MessagePattern.PublishSubscribe:
                     socket = context.CreatePublisherSocket();
-                    socket.Bind(Address);
+                    socket.Bind(Connection.Address);
                     break;
                 default:
-                    throw new Exception($"Cannot create an outbound socket for pattern {Pattern}");
+                    throw new Exception($"Cannot create an outbound socket for pattern {Connection.Pattern}");
             }
 
             return socket;
@@ -72,11 +71,11 @@ namespace POC.Messaging.ZeroMq
 
         public override IMessageQueue GetResponseQueue() => this;
         
-        public override void Receive(Action<Message> onMessageReceved)
+        public override void Receive(Action<Message> onMessageReceived)
         {
             var inbound = Queue.ReceiveFrameString();
             var message = Message.FromJson(inbound);
-            onMessageReceved(message);
+            onMessageReceived(message);
         }
 
         public override void Send(Message message)

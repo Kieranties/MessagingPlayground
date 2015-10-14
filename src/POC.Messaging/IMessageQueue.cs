@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace POC.Messaging
 {
     public interface IMessageQueue : IDisposable
     {
-        string Address { get; }
-
-        IDictionary<string, object> Properties { get; }
-        
+        IMessageQueueConnection Connection { get; }
+                
         void Send(Message message);
 
         void Listen(Action<Message> onMessageReceived);

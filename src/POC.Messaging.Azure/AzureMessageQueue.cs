@@ -1,55 +1,53 @@
 ﻿using Microsoft.ServiceBus.Messaging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace POC.Messaging.Azure
 {
     public class AzureMessageQueue : MessageQueueBase<QueueClient>
-    {        
-        public AzureMessageQueue(string address, string name, Direction direction, MessagePattern pattern, IMessageQueueFactory queueFactory, IDictionary<string, object> properties)
-            : base(address, direction, pattern, queueFactory, properties)
-        {
-            Name = name;
-            Endpoint = address;
-            
-            // set address to correct format
-            Address = $"{Name}||{Endpoint}";
+    {
+        private readonly TopicClient _topicClient;
 
-            Queue = QueueClient.CreateFromConnectionString(address, name);
+        public AzureMessageQueue(AzureMessageQueueConnection connection, IMessageQueueFactory queueFactory)
+            : base(connection, queueFactory)
+        {
+            AzureConnection = connection;
+            switch (connection.Pattern)
+            {
+                case MessagePattern.PublishSubscribe:
+                    _topicClient = TopicClient.CreateFromConnectionString(connection.Endpoint, connection.Name);
+                    break;
+                default:
+                    Queue = QueueClient.CreateFromConnectionString(connection.Endpoint, connection.Name);
+                    break;
+            }            
         }
 
-        protected IMessageQueue RepsonseQueue { get; set; }
+        protected AzureMessageQueueConnection AzureConnection { get; set; }
 
-        protected string Endpoint { get; set; }
-
-        protected string Name { get; set; }
-
-
+        protected IMessageQueue ResponseQueue { get; set; }
+                
         public override void Dispose()
         {
             Queue.Close();
-            RepsonseQueue.Dispose();
+            ResponseQueue.Dispose();
         }
 
-        public override IMessageQueue GetReplyQueue(Message message)
-        {
-            return QueueFactory.CreateOutbound(message.ResponseAddress, MessagePattern.RequestResponse);
-        }
+        public override IMessageQueue GetReplyQueue(Message message) => QueueFactory.Create(message.ResponseConnection);
 
         public override IMessageQueue GetResponseQueue()
         {
-            if (!(Pattern == MessagePattern.RequestResponse && Direction == Direction.Outbound))
+            if (!(Connection.Pattern == MessagePattern.RequestResponse && Connection.Direction == Direction.Outbound))
                 throw new InvalidOperationException("Cannot get a response queue except for outbound request-response");
 
-            if (RepsonseQueue != null)
-                return RepsonseQueue;
+            if (ResponseQueue != null)
+                return ResponseQueue;
                         
-            var queueName = $"{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}-{Guid.NewGuid().ToString("D")}||{Endpoint}";
+            var queueName = $"{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}-{Guid.NewGuid().ToString("D")}||{AzureConnection.Endpoint}";
+            var connection = new AzureMessageQueueConnection { Name = queueName, Endpoint = AzureConnection.Endpoint, Direction = Direction.Inbound, Pattern = MessagePattern.RequestResponse };
+            ResponseQueue = QueueFactory.Create(connection);
 
-            RepsonseQueue = QueueFactory.CreateInbound(queueName, MessagePattern.RequestResponse, null);
-
-            return RepsonseQueue;
+            return ResponseQueue;
         }
 
         public override void Receive(Action<Message> onMessageReceved)
@@ -65,7 +63,16 @@ namespace POC.Messaging.Azure
         public override void Send(Message message)
         {
             var brokeredMessage = new BrokeredMessage(message.ToJsonStream(), true);
-            Queue.Send(brokeredMessage);
+
+            switch (Connection.Pattern)
+            {
+                case MessagePattern.PublishSubscribe:
+                    _topicClient.Send(brokeredMessage);
+                    break;
+                default:                    
+                    Queue.Send(brokeredMessage);
+                    break;
+            }
         }
     }
 }

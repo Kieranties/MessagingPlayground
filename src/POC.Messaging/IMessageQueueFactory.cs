@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace POC.Messaging
+﻿namespace POC.Messaging
 {
     public interface IMessageQueueFactory
     {
-        IMessageQueue CreateInbound(string name, MessagePattern pattern, IDictionary<string, object> properties = null);
+        IMessageQueue Get(string name);
 
-        IMessageQueue CreateOutbound(string name, MessagePattern pattern, IDictionary<string, object> properties = null);
+        IMessageQueue Connect(IMessageQueueConnection connection);
 
-        string GetAddress(string name);
+        IMessageQueue Create(IMessageQueueConnection connection);        
     }
 }

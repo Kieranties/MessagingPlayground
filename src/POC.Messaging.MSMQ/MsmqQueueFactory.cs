@@ -4,28 +4,30 @@ using System.Messaging;
 
 namespace POC.Messaging.MSMQ
 {
-    public class MsmqQueueFactory : MessageQueueFactoryBase
+    public class MsmqQueueFactory : MessageQueueFactoryBase<IMessageQueueConnection>
     {        
         private readonly ILogger<MsmqQueueFactory> _logger;
         
-        public MsmqQueueFactory(IDictionary<string, string> addressMapping, ILogger<MsmqQueueFactory> logger)
-            :base(addressMapping)
+        public MsmqQueueFactory(IList<IMessageQueueConnection> connectionMapping, ILogger<MsmqQueueFactory> logger)
+            : base(connectionMapping)
         {            
             _logger = logger;
-        }        
+        }
 
-        protected override IMessageQueue CreateQueue(string name, Direction direction, MessagePattern pattern, IDictionary<string, object> properties)
+        public override IMessageQueue Connect(IMessageQueueConnection connection)
         {
-            var address = GetAddress(name);
+            _logger.LogInformation($"[Registered] {connection.Name} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
+            return new MsmqMessageQueue(connection, this);
+        }
 
-            if (string.IsNullOrEmpty(address))
+        public override IMessageQueue Create(IMessageQueueConnection connection)
+        {
+            if (!MessageQueue.Exists(connection.Address))
             {
-                MessageQueue.Create(name); // treat name as an address
-                address = name;
+                MessageQueue.Create(connection.Address);
             }
 
-            _logger.LogInformation($"[Registered] {direction} Queue: {name} | {pattern} | {address}");
-            return new MsmqMessageQueue(address, direction, pattern, this, properties);
+            return Connect(connection);
         }
     }
 }

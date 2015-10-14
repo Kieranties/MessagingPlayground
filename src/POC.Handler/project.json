@@ -22,11 +22,11 @@
 
   "commands": {
     "POC.Handler": "POC.Handler",
-    "user": "POC.Handler --ListenTo doesuserexist --Handler POC.Handler.Handlers.DoesUserExistHandler --Pattern RequestResponse",
-    "unsubscribe": "POC.Handler --ListenTo unsubscribe --Handler POC.Handler.Handlers.UnsubscribeHandler --Pattern FireAndForget",
-    "legacy": "POC.Handler --ListenTo unsubscribe-legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler --Pattern PublishSubscribe",
-    "crm": "POC.Handler --ListenTo unsubscribe-crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler --Pattern PublishSubscribe",
-    "fulfilment": "POC.Handler --ListenTo unsubscribe-fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler --Pattern PublishSubscribe"
+    "user": "POC.Handler --ListenTo doesuserexist --Handler POC.Handler.Handlers.DoesUserExistHandler",
+    "unsubscribe": "POC.Handler --ListenTo unsubscribe --Handler POC.Handler.Handlers.UnsubscribeHandler",
+    "legacy": "POC.Handler --ListenTo unsubscribe-legacy --Handler POC.Handler.Handlers.UnsubscribeLegacyHandler",
+    "crm": "POC.Handler --ListenTo unsubscribe-crm --Handler POC.Handler.Handlers.UnsubscribeCrmHandler",
+    "fulfilment": "POC.Handler --ListenTo unsubscribe-fulfilment --Handler POC.Handler.Handlers.UnsubscribeFulfilmentHandler"
   },
 
   "frameworks": {

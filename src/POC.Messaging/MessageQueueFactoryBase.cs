@@ -1,39 +1,31 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace POC.Messaging
 {
-    public abstract class MessageQueueFactoryBase : IMessageQueueFactory
+    public abstract class MessageQueueFactoryBase<T> : IMessageQueueFactory where T : IMessageQueueConnection
     {
-        private readonly IDictionary<string, string> _addressMapping;        
+        private readonly IDictionary<string, T> _connectionMap;
         private readonly ConcurrentDictionary<string, IMessageQueue> _queues = new ConcurrentDictionary<string, IMessageQueue>();
 
-        protected MessageQueueFactoryBase(IDictionary<string, string> addressMapping)
+        protected MessageQueueFactoryBase(IList<T> connectionMap)
         {
-            _addressMapping = addressMapping;
+            _connectionMap = connectionMap.ToDictionary(entry => entry.Name, entry => entry);
         }
 
-        public virtual IMessageQueue CreateInbound(string name, MessagePattern pattern, IDictionary<string, object> properties = null)
+        public virtual IMessageQueue Get(string name)
         {
-            return _queues.GetOrAdd(name, key => CreateQueue(name, Direction.Inbound, pattern, properties));
+            if (_connectionMap.ContainsKey(name)) // get or add from cache
+            {
+                return _queues.GetOrAdd(name, key => Connect(_connectionMap[key]));
+            }
+            
+            return null;
         }
 
-        public virtual IMessageQueue CreateOutbound(string name, MessagePattern pattern, IDictionary<string, object> properties = null)
-        {
-            return _queues.GetOrAdd(name, key => CreateQueue(name, Direction.Outbound, pattern, properties));
-        }
+        public abstract IMessageQueue Connect(IMessageQueueConnection connection);
 
-        public virtual string GetAddress(string name)
-        {
-            string address;
-            _addressMapping.TryGetValue(name.ToLowerInvariant(), out address);
-
-            return address;
-        }
-
-        protected abstract IMessageQueue CreateQueue(string name, Direction direction, MessagePattern pattern, IDictionary<string, object> properties);
+        public abstract IMessageQueue Create(IMessageQueueConnection connection);               
     }
 }

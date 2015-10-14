@@ -14,9 +14,9 @@ namespace POC.Controllers
 
         public UnsubscribeController(IMessageQueueFactory queueFactory)
         {
-            _userExist = queueFactory.CreateOutbound("doesuserexist", MessagePattern.RequestResponse);
+            _userExist = queueFactory.Get("doesuserexist");
             _userExistResponse = _userExist.GetResponseQueue();
-            _unsubscribe = queueFactory.CreateOutbound("unsubscribe", MessagePattern.FireAndForget);
+            _unsubscribe = queueFactory.Get("unsubscribe");
         }
 
         [HttpGet]        
@@ -51,7 +51,7 @@ namespace POC.Controllers
             var message = new Message
             {
                 Body = doesUserExist,
-                ResponseAddress = _userExistResponse.Address
+                ResponseConnection = _userExistResponse.Connection
             };
             _userExist.Send(message);
 

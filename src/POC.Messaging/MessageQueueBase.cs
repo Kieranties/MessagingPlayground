@@ -1,26 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace POC.Messaging
 {
     public abstract class MessageQueueBase<T> : IMessageQueue
     {
-        public MessageQueueBase(string address, Direction direction, MessagePattern pattern, IMessageQueueFactory queueFactory, IDictionary<string, object> properties)
+        public MessageQueueBase(IMessageQueueConnection connection, IMessageQueueFactory queueFactory)
         {
-            Address = address;
-            Direction = direction;
-            Pattern = pattern;            
+            Connection = connection;  
             QueueFactory = queueFactory;
-            Properties = Properties ?? new Dictionary<string, object>();
         }
 
-        public string Address { get; protected set; }        
-
-        public IDictionary<string, object> Properties { get; protected set; }
-
-        protected MessagePattern Pattern { get; set; }
-
-        protected Direction Direction { get; set; }
+        public IMessageQueueConnection Connection { get; }
 
         protected IMessageQueueFactory QueueFactory { get; set; }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -13,7 +12,7 @@ namespace POC.Messaging
 
         public object Body { get; set; }
         
-        public string ResponseAddress { get; set; }
+        public IMessageQueueConnection ResponseConnection { get; set; }
 
         public string ToJson() => JsonConvert.SerializeObject(this, _serializerSettings);
 

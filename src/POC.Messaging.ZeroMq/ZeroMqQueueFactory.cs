@@ -4,23 +4,24 @@ using System.Collections.Generic;
 
 namespace POC.Messaging.ZeroMq
 {
-    public class ZeroMqQueueFactory : MessageQueueFactoryBase
+    public class ZeroMqQueueFactory : MessageQueueFactoryBase<IMessageQueueConnection>
     {        
         private readonly ILogger<ZeroMqQueueFactory> _logger;
         private readonly NetMQContext _context = NetMQContext.Create();
         
-        public ZeroMqQueueFactory(IDictionary<string, string> addressMapping, ILogger<ZeroMqQueueFactory> logger)
-            : base(addressMapping)
+        public ZeroMqQueueFactory(IList<IMessageQueueConnection> connectionMapping, ILogger<ZeroMqQueueFactory> logger)
+            : base(connectionMapping)
         {            
             _logger = logger;
         }        
 
-        protected override IMessageQueue CreateQueue(string name, Direction direction, MessagePattern pattern, IDictionary<string, object> properties)
+        public override IMessageQueue Connect(IMessageQueueConnection connection)
         {
-            var address = GetAddress(name) ?? name;
-
-            _logger.LogInformation($"[Registered] {direction} Queue: {name} | {pattern} | {address}");
-            return new ZeroMqMessageQueue(_context, address, direction, pattern, this, properties);
+            _logger.LogInformation($"[Registered] {connection.Name} | {connection.Direction} | {connection.Pattern} | {connection.Address}");
+            return new ZeroMqMessageQueue(_context, connection, this);
         }
+
+        public override IMessageQueue Create(IMessageQueueConnection connection) => Connect(connection);
+
     }
 }

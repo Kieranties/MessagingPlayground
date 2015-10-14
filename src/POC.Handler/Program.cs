@@ -3,9 +3,6 @@ using System;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Configuration;
 using POC.Messaging;
-using POC.Messaging.MSMQ;
-using POC.Messaging.ZeroMq;
-using POC.Messaging.Azure;
 
 namespace POC.Handler
 {
@@ -13,20 +10,24 @@ namespace POC.Handler
     {
         public void Main(string[] args)
         {
-            var config = new ConfigurationBuilder(".")
-                .AddCommandLine(args)
-                .AddJsonFile("azure.queues.json")
+            var runtimeConfig = new ConfigurationBuilder()
+                .AddCommandLine(args)                
                 .Build();
 
             var options = new Options();
-            config.Bind(options);
+            runtimeConfig.Bind(options);
 
-            var services = BuildServiceProvider(options);
+            var queueConfig = new ConfigurationBuilder(".")
+                .AddJsonFile("queues.json")
+                .Build()
+                .GetSection(options.QueueType);
+                        
+            var services = BuildServiceProvider(options, queueConfig);
             var logger = services.GetRequiredService<ILogger<Program>>();
             var handlerFactory = services.GetRequiredService<IMessageHandlerFactory>();
             var queueFactory = services.GetRequiredService<IMessageQueueFactory>();
                         
-            var queue = queueFactory.CreateInbound(options.ListenTo, options.Pattern);
+            var queue = queueFactory.Get(options.ListenTo);
             queue.Listen(msg =>
             {
                 var handler = handlerFactory.GetHandler(msg.Body.GetType());
@@ -34,13 +35,27 @@ namespace POC.Handler
             });            
         }
         
-        // Composition rootgithub
-        private IServiceProvider BuildServiceProvider(Options options)
+        // Composition root
+        private IServiceProvider BuildServiceProvider(Options options, IConfigurationSection queueConfig)
         {
             var services = new ServiceCollection().AddLogging();
 
             services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
-            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<AzureQueueFactory>(sp, options.Queues));
+
+            switch (options.QueueType)
+            {
+                case "zeromq":
+                    services.AddZeroMq(queueConfig);
+                    break;
+                case "msmq":
+                    services.AddMsmq(queueConfig);
+                    break;
+                case "azure":
+                    services.AddAzure(queueConfig);
+                    break;
+                default:
+                    throw new Exception($"Could not resolve queue type {options.QueueType}");
+            }           
             
             if (!string.IsNullOrWhiteSpace(options.Handler))
             {
