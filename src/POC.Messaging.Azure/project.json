@@ -9,7 +9,8 @@
   "dependencies": {
     "POC.Messaging": "",
     "WindowsAzure.ServiceBus": "3.0.4",
-    "Microsoft.WindowsAzure.ConfigurationManager": "3.1.0"
+    "Microsoft.WindowsAzure.ConfigurationManager": "3.1.0",
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7"
   },
 
   "frameworks": {

@@ -6,6 +6,7 @@ using Microsoft.Framework.Logging;
 using POC.Messaging;
 using POC.Messaging.MSMQ;
 using POC.Messaging.ZeroMq;
+using POC.Messaging.Azure;
 using System.Collections.Generic;
 
 namespace POC
@@ -25,7 +26,7 @@ namespace POC
         public void ConfigureServices(IServiceCollection services)
         {
             var config = new ConfigurationBuilder(_appEnv.ApplicationBasePath)
-                .AddJsonFile($"msmq.queues.json")
+                .AddJsonFile($"azure.queues.json")
                 .Build();
 
             var options = new Options();
@@ -33,7 +34,7 @@ namespace POC
 
             services.AddMvc();
             services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
-            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<MsmqQueueFactory>(sp, options.Queues));
+            services.AddSingleton<IMessageQueueFactory>(sp => ActivatorUtilities.CreateInstance<AzureQueueFactory>(sp, options.Queues));
         }
 
         public void Configure(IApplicationBuilder app)

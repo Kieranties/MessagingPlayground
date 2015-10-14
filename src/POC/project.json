@@ -13,7 +13,8 @@
     "Newtonsoft.Json": "7.0.1",
 
     "POC.Messaging.MSMQ": "",
-    "POC.Messaging.ZeroMq": ""
+    "POC.Messaging.ZeroMq": "",
+    "POC.Messaging.Azure": "" 
   },
   "commands": {
     "web": "Microsoft.AspNet.Hosting --config hosting.ini"

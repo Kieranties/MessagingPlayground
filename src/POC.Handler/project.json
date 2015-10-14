@@ -9,6 +9,7 @@
   "dependencies": {
     "POC.Messaging.MSMQ": "",
     "POC.Messaging.ZeroMq": "",
+    "POC.Messaging.Azure": "",
 
     "Microsoft.Framework.Configuration": "1.0.0-beta7",
     "Microsoft.Framework.Configuration.CommandLine": "1.0.0-beta7",
