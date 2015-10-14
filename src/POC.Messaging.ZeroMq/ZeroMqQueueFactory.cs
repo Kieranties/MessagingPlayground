@@ -20,7 +20,7 @@ namespace POC.Messaging.ZeroMq
             var address = GetAddress(name) ?? name;
 
             _logger.LogInformation($"[Registered] {direction} Queue: {name} | {pattern} | {address}");
-            return new ZeroMqMessageQueue(_context, address, direction, pattern, properties);
+            return new ZeroMqMessageQueue(_context, address, direction, pattern, this, properties);
         }
     }
 }

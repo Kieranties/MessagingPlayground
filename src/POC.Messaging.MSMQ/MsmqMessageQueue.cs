@@ -5,25 +5,16 @@ using MsmqMessage = System.Messaging.Message;
 
 namespace POC.Messaging.MSMQ
 {
-    public class MsmqMessageQueue : MessageQueueBase
+    public class MsmqMessageQueue : MessageQueueBase<MessageQueue>
     {   
-        public MsmqMessageQueue(string address, Direction direction, MessagePattern pattern, IDictionary<string, object> properties = null)
-            : this(new MessageQueue(address), direction, pattern, properties)
+        public MsmqMessageQueue(string address, Direction direction, MessagePattern pattern, IMessageQueueFactory queueFactory, IDictionary<string, object> properties = null)
+            : base(address, direction, pattern, queueFactory, properties)
         {
-            
+            Queue = new MessageQueue(Address);
         }
-
-        private MsmqMessageQueue(MessageQueue queue, Direction direction, MessagePattern pattern, IDictionary<string, object> properties = null)
-            : base(queue.Path, direction, pattern, properties)
-        {
-            Queue = queue;
-        }
-
-        protected MessageQueue Queue { get; set; }
-
+        
         protected IMessageQueue ResponseQueue { get; set; }
-
-
+        
         public override IMessageQueue GetReplyQueue(Message message)
         {
             if (!(Pattern == MessagePattern.RequestResponse && Direction == Direction.Inbound))
@@ -42,16 +33,8 @@ namespace POC.Messaging.MSMQ
                         
             // make unique based on timestamp and guid
             var address = $".\\private$\\{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}:{Guid.NewGuid().ToString().Trim('{','}')}";
-            ResponseQueue = new MsmqMessageQueue(MessageQueue.Create(address), Direction.Inbound, MessagePattern.RequestResponse, null);
+            ResponseQueue = QueueFactory.CreateInbound(address, MessagePattern.RequestResponse, null);
             return ResponseQueue;
-        }
-       
-        public override void Listen(Action<Message> onMessageReceived)
-        {
-            while (true)
-            {
-                Receive(onMessageReceived);
-            }
         }
 
         public override void Receive(Action<Message> onMessageReceived)

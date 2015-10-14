@@ -4,33 +4,29 @@ using NetMQ;
 
 namespace POC.Messaging.ZeroMq
 {
-    public class ZeroMqMessageQueue : MessageQueueBase
+    public class ZeroMqMessageQueue : MessageQueueBase<NetMQSocket>
     {
-        private readonly NetMQContext _context;
-        private readonly NetMQSocket _socket;
-
-        public ZeroMqMessageQueue(NetMQContext context, string address, Direction direction, MessagePattern pattern, IDictionary<string, object> properties)
-            : base(address, direction, pattern, properties)
+        public ZeroMqMessageQueue(NetMQContext context, string address, Direction direction, MessagePattern pattern, IMessageQueueFactory queueFactory, IDictionary<string, object> properties)
+            : base(address, direction, pattern, queueFactory, properties)
         {
-            _context = context;
-            _socket = direction == Direction.Inbound ? GetInboundSocket() : GetOutboundSocket();
+            Queue = direction == Direction.Inbound ? GetInboundSocket(context) : GetOutboundSocket(context);
         }
 
-        private NetMQSocket GetInboundSocket()
+        private NetMQSocket GetInboundSocket(NetMQContext context)
         {
             NetMQSocket socket;
             switch (Pattern)
             {
                 case MessagePattern.FireAndForget:
-                    socket = _context.CreatePullSocket();
+                    socket = context.CreatePullSocket();
                     socket.Bind(Address);
                     break;
                 case MessagePattern.RequestResponse:
-                    socket = _context.CreateResponseSocket();
+                    socket = context.CreateResponseSocket();
                     socket.Bind(Address);
                     break;
                 case MessagePattern.PublishSubscribe:
-                    var subSocket = _context.CreateSubscriberSocket();
+                    var subSocket = context.CreateSubscriberSocket();
                     subSocket.SubscribeToAnyTopic();
                     subSocket.Connect(Address);
                     socket = subSocket;
@@ -42,21 +38,21 @@ namespace POC.Messaging.ZeroMq
             return socket;
         }
 
-        private NetMQSocket GetOutboundSocket()
+        private NetMQSocket GetOutboundSocket(NetMQContext context)
         {
             NetMQSocket socket;
             switch (Pattern)
             {
                 case MessagePattern.FireAndForget:
-                    socket = _context.CreatePushSocket();
+                    socket = context.CreatePushSocket();
                     socket.Connect(Address);
                     break;
                 case MessagePattern.RequestResponse:
-                    socket = _context.CreateRequestSocket();
+                    socket = context.CreateRequestSocket();
                     socket.Connect(Address);
                     break;
                 case MessagePattern.PublishSubscribe:
-                    socket = _context.CreatePublisherSocket();
+                    socket = context.CreatePublisherSocket();
                     socket.Bind(Address);
                     break;
                 default:
@@ -69,24 +65,16 @@ namespace POC.Messaging.ZeroMq
 
         public override void Dispose()
         {
-            _socket.Dispose();
+            Queue.Dispose();            
         }
 
         public override IMessageQueue GetReplyQueue(Message message) => this;
 
         public override IMessageQueue GetResponseQueue() => this;
-
-        public override void Listen(Action<Message> onMessageReceived)
-        {
-            while (true)
-            {
-                Receive(onMessageReceived);
-            }
-        }
-
+        
         public override void Receive(Action<Message> onMessageReceved)
         {
-            var inbound = _socket.ReceiveFrameString();
+            var inbound = Queue.ReceiveFrameString();
             var message = Message.FromJson(inbound);
             onMessageReceved(message);
         }
@@ -94,7 +82,7 @@ namespace POC.Messaging.ZeroMq
         public override void Send(Message message)
         {
             var json = message.ToJson();
-            _socket.SendFrame(json);
+            Queue.SendFrame(json);
         }
     }
 }
