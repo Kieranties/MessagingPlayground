@@ -1,5 +1,6 @@
 ﻿using System;
 using NetMQ;
+using System.Threading.Tasks;
 
 namespace POC.Messaging.ZeroMq
 {
@@ -71,11 +72,34 @@ namespace POC.Messaging.ZeroMq
 
         public override IMessageQueue GetResponseQueue() => this;
         
-        public override void Receive(Action<Message> onMessageReceived)
+        public override void Receive(Action<Message> onMessageReceived, bool isAsync = false, int maxWaitMilliseconds = 0)
         {
-            var inbound = Queue.ReceiveFrameString();
-            var message = Message.FromJson(inbound);
-            onMessageReceived(message);
+            if (maxWaitMilliseconds > 0)
+            {
+                Queue.ReceiveReady += (s, a) => HandleReceive(a.Socket.ReceiveFrameString(), onMessageReceived, isAsync);
+
+                Queue.Poll(TimeSpan.FromMilliseconds(maxWaitMilliseconds));
+            }
+            else
+            {
+                HandleReceive(Queue.ReceiveFrameString(), onMessageReceived, isAsync);
+            }
+        }
+
+        protected virtual void HandleReceive(string frame, Action<Message> onMessageReceived, bool isAsync)
+        {
+            var message = Message.FromJson(frame);
+
+            //we can only process ZMQ async if the pattern supports it - we can't call Rec
+            //twice on a REP socket without the Send in between:
+            if (isAsync && Connection.Pattern != MessagePattern.RequestResponse)
+            {
+                Task.Factory.StartNew(() => onMessageReceived(message));
+            }
+            else
+            {
+                onMessageReceived(message);
+            }
         }
 
         public override void Send(Message message)

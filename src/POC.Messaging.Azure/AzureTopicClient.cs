@@ -17,11 +17,16 @@ namespace POC.Messaging.Azure
             
         }
 
-        public BrokeredMessage Receive()
+        public BrokeredMessage Receive(int maxWaitMilliseconds = 0)
         {
             throw new NotImplementedException();
         }
 
         public void Send(BrokeredMessage message) => _client.Send(message);
+
+        public void OnMessage(Action<BrokeredMessage> callback, OnMessageOptions options)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

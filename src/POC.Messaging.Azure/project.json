@@ -12,7 +12,8 @@
     "Microsoft.WindowsAzure.ConfigurationManager": "3.1.0",
     "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7",
     "Microsoft.Framework.Configuration.Abstractions": "1.0.0-beta7",
-    "Microsoft.Framework.OptionsModel": "1.0.0-beta7"
+    "Microsoft.Framework.OptionsModel": "1.0.0-beta7",
+    "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-beta7"
   },
 
   "frameworks": {

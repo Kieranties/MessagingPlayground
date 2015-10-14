@@ -1,6 +1,8 @@
 ﻿using Microsoft.ServiceBus.Messaging;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace POC.Messaging.Azure
 {
@@ -56,12 +58,35 @@ namespace POC.Messaging.Azure
             return ResponseQueue;
         }
 
-        public override void Receive(Action<Message> onMessageReceved)
+        protected override void ListenInternal(Action<Message> onMessageReceived, CancellationToken cancellationToken)
         {
-            var packet = Queue.Receive();
+            var options = new OnMessageOptions { MaxConcurrentCalls = 10 };
+
+            Queue.OnMessage(message => HandleReceive(message, onMessageReceived), options);
+
+            cancellationToken.WaitHandle.WaitOne();
+        }
+
+        public override void Receive(Action<Message> onMessageReceived, bool isAsync = false, int maxWaitMilliseconds = 0)
+        {
+            
+            var packet = Queue.Receive(maxWaitMilliseconds);
+            
+            if (isAsync)
+            {
+                Task.Run(() => HandleReceive(packet, onMessageReceived));
+            }
+            else
+            {
+                HandleReceive(packet, onMessageReceived);
+            }
+        }
+
+        protected virtual void HandleReceive(BrokeredMessage packet, Action<Message> onMessageReceived)
+        {
             var messageStream = packet.GetBody<Stream>();
             var message = Message.FromJson(messageStream);
-            onMessageReceved(message);
+            onMessageReceived(message);
 
             packet.Complete(); // azure needs to signal the message has been handled
         }

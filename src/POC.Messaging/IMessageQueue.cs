@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace POC.Messaging
 {
@@ -8,10 +9,10 @@ namespace POC.Messaging
                 
         void Send(Message message);
 
-        void Listen(Action<Message> onMessageReceived);
+        void Listen(Action<Message> onMessageReceived, CancellationToken cancellationToken);
 
-        void Receive(Action<Message> onMessageReceived);        
-
+        void Receive(Action<Message> onMessageReceived, bool isAsync = false, int maxWaitMilliseconds = 0);
+        
         IMessageQueue GetResponseQueue();
 
         IMessageQueue GetReplyQueue(Message message);

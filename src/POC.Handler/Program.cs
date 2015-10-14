@@ -3,11 +3,18 @@ using System;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Configuration;
 using POC.Messaging;
+using Microsoft.Dnx.Runtime;
+using System.Threading;
 
 namespace POC.Handler
 {
     public class Program
-    {
+    {        
+        public Program()
+        {
+            Console.CancelKeyPress += (a, e) => Environment.Exit(0);
+        }
+
         public void Main(string[] args)
         {
             var runtimeConfig = new ConfigurationBuilder()
@@ -28,11 +35,33 @@ namespace POC.Handler
             var queueFactory = services.GetRequiredService<IMessageQueueFactory>();
                         
             var queue = queueFactory.Get(options.ListenTo);
+
+            logger.LogInformation("Ctrl + C to exit");
+
+            while (true)
+            {
+                var cancelSource = Start(queue, handlerFactory, logger);
+                Console.ReadKey(true);
+                cancelSource.Cancel();
+                logger.LogInformation("Press any key to start listening");
+                Console.ReadKey(true);
+            }            
+        }
+        
+        private CancellationTokenSource Start(IMessageQueue queue, IMessageHandlerFactory handlerFactory, ILogger logger)
+        {
+            var cancelSource = new CancellationTokenSource();
+
+            logger.LogInformation("Running");
+            logger.LogInformation("Press any key to pause");
+
             queue.Listen(msg =>
             {
                 var handler = handlerFactory.GetHandler(msg.Body.GetType());
                 handler.Handle(msg, queue);
-            });            
+            }, cancelSource.Token);
+
+            return cancelSource;
         }
         
         // Composition root

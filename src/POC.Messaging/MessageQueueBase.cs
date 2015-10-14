@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace POC.Messaging
 {
@@ -16,15 +18,27 @@ namespace POC.Messaging
 
         protected T Queue { get; set; }
 
-        public virtual void Listen(Action<Message> onMessageReceived)
+        public virtual void Listen(Action<Message> onMessageReceived, CancellationToken cancellationToken)
+        {
+            Task.Factory.StartNew(() => ListenInternal(onMessageReceived, cancellationToken), cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);            
+        }
+
+        protected virtual void ListenInternal(Action<Message> onMessageReceived, CancellationToken cancellationToken)
         {
             while (true)
             {
-                Receive(onMessageReceived);
-            }
-        }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    break;
+                }
 
-        public abstract void Receive(Action<Message> onMessageReceved);
+                Receive(onMessageReceived, true);
+                Thread.Sleep(100); //poll
+            }
+        }               
+
+        public abstract void Receive(Action<Message> onMessageReceived, bool isAsync = false, int maxWaitMilliseconds = 0);
 
         public abstract void Dispose();
         

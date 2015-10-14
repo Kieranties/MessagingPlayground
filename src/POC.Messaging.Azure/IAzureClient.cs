@@ -7,6 +7,8 @@ namespace POC.Messaging.Azure
     {
         void Send(BrokeredMessage message);
 
-        BrokeredMessage Receive();
+        BrokeredMessage Receive(int maxWaitMilliseconds = 0);
+
+        void OnMessage(Action<BrokeredMessage> callback, OnMessageOptions options);
     }
 }

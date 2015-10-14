@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Messaging;
+using System.Threading.Tasks;
 using MsmqMessage = System.Messaging.Message;
 
 namespace POC.Messaging.MSMQ
@@ -37,11 +38,27 @@ namespace POC.Messaging.MSMQ
             return ResponseQueue;
         }
 
-        public override void Receive(Action<Message> onMessageReceived)
+        public override void Receive(Action<Message> onMessageReceived, bool isAsync = false, int maxWaitMilliseconds = 0)
         {
-            var inbound = Queue.Receive();
+            MsmqMessage inbound;
+            if (maxWaitMilliseconds > 0)
+            {
+                inbound = Queue.Receive(TimeSpan.FromMilliseconds(maxWaitMilliseconds));
+            }
+            else
+            {
+                inbound = Queue.Receive();
+            }
+
             var message = Message.FromJson(inbound.BodyStream);
-            onMessageReceived(message);
+            if (isAsync)
+            {
+                Task.Run(() => onMessageReceived(message));
+            }
+            else
+            {
+                onMessageReceived(message);
+            }
         }
 
         public override void Send(Message message)
