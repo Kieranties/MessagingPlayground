@@ -68,7 +68,7 @@ namespace POC.Handler
         private IServiceProvider BuildServiceProvider(Options options, IConfigurationSection queueConfig)
         {
             var services = new ServiceCollection().AddLogging();
-
+                        
             services.AddSingleton<IMessageHandlerFactory, MessageHandlerFactory>();
 
             switch (options.QueueType)

@@ -9,12 +9,10 @@ namespace POC.Handler.Handlers
     public class DoesUserExistHandler : MessageHandlerBase<DoesUserExistRequest>
     {
         private readonly ILogger<DoesUserExistHandler> _logger;
-        private readonly IMessageQueueFactory _queueFactory;
 
-        public DoesUserExistHandler(ILogger<DoesUserExistHandler> logger, IMessageQueueFactory queueFactory)
+        public DoesUserExistHandler(ILogger<DoesUserExistHandler> logger)
         {
             _logger = logger;
-            _queueFactory = queueFactory;
         }
 
         public override void Handle(Message message, IMessageQueue sourceQueue)
